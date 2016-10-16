@@ -1,5 +1,5 @@
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Dense, GlobalAveragePooling2D, Flatten
+from keras.layers import Dense, GlobalAveragePooling2D, Input
 from sklearn.model_selection import train_test_split
 from keras.models import Model
 import tensorflow as tf
@@ -32,13 +32,14 @@ X_test /= 255
 
 # https://www.tensorflow.org/versions/r0.11/api_docs/python/image.html#images
 # For ways to preprocess images
-images = tf.placeholder("float32", shape=(None, 32, 32, 3))
+# images = tf.placeholder("float32", shape=(None, 32, 32, 3))
+images = Input(shape=(32, 32, 3))
 resized_images = tf.image.resize_images(images, (224, 224))
 
 base_model = InceptionV3(input_tensor=images, include_top=False, weights='imagenet')
 
 x = base_model.output
-x = Flatten()(x)
+x = GlobalAveragePooling2D()(x)
 x = Dense(1024, activation='relu')(x)
 x = Dense(512, activation='relu')(x)
 predictions = Dense(nb_classes, activation='softmax')(x)

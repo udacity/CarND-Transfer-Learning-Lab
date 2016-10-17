@@ -13,7 +13,7 @@ calling `model = ResNet(...)`. Maybe just settle for VGG?
 
 - ~~TFSlim might be better for this lab, explore that.~~
 - Looks like we perform much worse with feature extraction
-than training from scratch.
+than training from scratch or finetuning.
 
 I tried (all on VGG):
 

@@ -1,5 +1,5 @@
-from keras.applications.vgg19 import VGG19
-from keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout
+from keras.applications.vgg16 import VGG16
+from keras.layers import Dense, GlobalAveragePooling2D, Input
 from sklearn.model_selection import train_test_split
 from keras.models import Model
 import tensorflow as tf
@@ -7,7 +7,7 @@ import pickle
 
 nb_classes = 43
 batch_size = 128
-nb_epoch = 20
+nb_epoch = 10
 
 with open('./data/train.p', mode='rb') as f:
     train = pickle.load(f)
@@ -33,23 +33,21 @@ X_test /= 255
 # https://www.tensorflow.org/versions/r0.11/api_docs/python/image.html#images
 # For ways to preprocess images
 images = Input(shape=(32, 32, 3))
-resized_images = tf.image.resize_images(images, (224, 224))
+# resized_images = tf.image.resize_images(images, (224, 22))
 
-base_model = VGG19(input_tensor=images, include_top=False, weights='imagenet')
+# base_model = VGG16(input_tensor=images, include_top=False, weights='imagenet')
+base_model = VGG16(input_tensor=images, include_top=False)
 
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
-x = Dense(1024, activation='relu')(x)
 x = Dense(512, activation='relu')(x)
-x = Dropout(0.8)(x)
 predictions = Dense(nb_classes, activation='softmax')(x)
 
 model = Model(input=base_model.input, output=predictions)
 
 # freeze base model layers
-for layer in base_model.layers:
-    layer.trainable = False
-
+# for layer in base_model.layers:
+#     layer.trainable = False
 
 model.compile(
     optimizer='adam',

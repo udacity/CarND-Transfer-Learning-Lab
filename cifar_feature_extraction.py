@@ -7,7 +7,7 @@ from skimage.transform import resize
 import numpy as np
 
 nb_classes = 10
-batch_size = 64
+batch_size = 32
 nb_epoch = 5
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -43,7 +43,7 @@ def gen(data, labels, size=(224, 224)):
     return _f
 
 input_tensor = Input(shape=(224, 224, 3))
-base_model = ResNet50(input_tensor=input_tensor, include_top=False, weights=None)
+base_model = ResNet50(input_tensor=input_tensor, include_top=False)
 
 x = base_model.output
 x = Flatten()(x)

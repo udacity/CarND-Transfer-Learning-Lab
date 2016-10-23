@@ -8,7 +8,7 @@ import pickle
 
 nb_classes = 43
 batch_size = 64
-nb_epoch = 10
+nb_epoch = 5
 
 with open('./data/train.p', mode='rb') as f:
     train = pickle.load(f)
@@ -26,6 +26,7 @@ X_val = X_val.astype('float32')
 X_train /= 255
 X_val /= 255
 X_test /= 255
+
 
 def gen(data, labels, size=(224, 224)):
     def _f():
@@ -50,7 +51,7 @@ def gen(data, labels, size=(224, 224)):
     return _f
 
 input_tensor = Input(shape=(224, 224, 3))
-base_model = ResNet50(input_tensor=input_tensor, include_top=False, weights=None)
+base_model = ResNet50(input_tensor=input_tensor, include_top=False)
 
 x = base_model.output
 x = Flatten()(x)

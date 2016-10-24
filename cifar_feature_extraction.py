@@ -1,4 +1,6 @@
 from keras.applications.resnet50 import ResNet50
+from keras.applications.inception_v3 import InceptionV3
+from keras.applications.vgg16 import VGG16
 from keras.layers import Dense, Flatten, Input
 from sklearn.model_selection import train_test_split
 from keras.models import Model
@@ -43,7 +45,9 @@ def gen(data, labels, size=(224, 224)):
     return _f
 
 input_tensor = Input(shape=(224, 224, 3))
-base_model = ResNet50(input_tensor=input_tensor, include_top=False)
+# base_model = ResNet50(input_tensor=input_tensor, include_top=False)
+# base_model = InceptionV3(input_tensor=input_tensor, include_top=False)
+base_model = VGG16(input_tensor=input_tensor, include_top=False)
 
 x = base_model.output
 x = Flatten()(x)

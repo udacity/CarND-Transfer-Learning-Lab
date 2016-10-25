@@ -53,7 +53,6 @@ def create_model():
         model = InceptionV3(input_tensor=input_tensor, include_top=False, weights='imagenet')
     else:
         model = ResNet50(input_tensor=input_tensor, include_top=False, weights='imagenet')
-    model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     return model
 

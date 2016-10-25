@@ -19,6 +19,8 @@ with open('./resnet_cifar10_bottleneck_features_validation.p', 'rb') as f:
 X_train, y_train = train_data['features'], train_data['labels']
 X_val, y_val = validation_data['features'], validation_data['labels']
 
+print('Feature shape', X_train.shape[1:])
+
 model = Sequential()
 model.add(Flatten(input_shape=X_train.shape[1:]))
 model.add(Dense(256, activation='relu'))

@@ -8,6 +8,7 @@ FLAGS = flags.FLAGS
 
 nb_classes = 10
 nb_epoch = 50
+batch_size = 64
 
 # flags.DEFINE_string('feature_file', '', '')
 
@@ -23,10 +24,9 @@ print('Feature shape', X_train.shape[1:])
 
 model = Sequential()
 model.add(Flatten(input_shape=X_train.shape[1:]))
-model.add(Dense(256, activation='relu'))
+model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(nb_classes, activation='softmax'))
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
-model.fit(X_train, y_train, nb_epoch=nb_epoch, batch_size=32, validation_data=(X_val, y_val))
+model.fit(X_train, y_train, nb_epoch=nb_epoch, batch_size=batch_size, validation_data=(X_val, y_val), shuffle=True)

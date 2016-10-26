@@ -6,15 +6,15 @@ import pickle
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-nb_classes = 10
 nb_epoch = 50
 batch_size = 64
+nb_classes = 10
 
 # flags.DEFINE_string('feature_file', '', '')
 
-with open('./resnet_cifar10_bottleneck_features_train.p', 'rb') as f:
+with open('./inception_cifar10_bottleneck_features_train.p', 'rb') as f:
     train_data = pickle.load(f)
-with open('./resnet_cifar10_bottleneck_features_validation.p', 'rb') as f:
+with open('./inception_cifar10_bottleneck_features_validation.p', 'rb') as f:
     validation_data = pickle.load(f)
 
 X_train, y_train = train_data['features'], train_data['labels']

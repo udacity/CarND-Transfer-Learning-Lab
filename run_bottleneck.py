@@ -1,7 +1,7 @@
-from keras.applications.resnet50 import ResNet50
+from keras.applications.resnet50 import ResNet50, preprocess_input
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import VGG16
-from keras.layers import Dense, Flatten, Input, AveragePooling2D
+from keras.layers import Dense, Flatten, Input, AveragePooling2D, GlobalAveragePooling2D
 from sklearn.model_selection import train_test_split
 from keras.models import Model
 from keras.datasets import cifar10
@@ -16,24 +16,29 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('dataset', 'cifar10', "Make bottleneck features this for dataset, one of 'cifar10', or 'traffic'")
 flags.DEFINE_string('network', 'resnet', "The model to bottleneck, one of 'vgg', 'inception', or 'resnet'")
-flags.DEFINE_integer('batch_size', 8, 'The batch size for the generator')
+flags.DEFINE_integer('batch_size', 16, 'The batch size for the generator')
 
 batch_size = FLAGS.batch_size
 
-def gen(data, labels, batch_size, size):
+
+h, w, ch = 224, 224, 3
+if FLAGS.network == 'inception':
+    h, w, ch = 299, 299, 3
+    from keras.applications.inception_v3 import preprocess_input
+
+img_placeholder = tf.placeholder("uint8", (None, 32, 32, 3))
+resize_op = tf.image.resize_images(img_placeholder, (h, w), method=0)
+
+def gen(session, data, labels, batch_size):
     def _f():
         start = 0
         end = start + batch_size
         n = data.shape[0]
         while True:
-            X_batch_old, y_batch = data[start:end], labels[start:end]
-            X_batch = []
-            for i in range(X_batch_old.shape[0]):
-                img = resize(X_batch_old[i, ...], size)
-                X_batch.append(img)
-
-            X_batch = np.array(X_batch)
-            X_batch = X_batch.astype('float32') / 255
+            X_batch = session.run(resize_op, {img_placeholder: data[start:end]})
+            # X_batch = X_batch.astype('float32') / 255
+            X_batch = preprocess_input(X_batch)
+            y_batch = data[start:end]
             start += batch_size
             end += batch_size
             if start >= n:
@@ -46,19 +51,19 @@ def gen(data, labels, batch_size, size):
 
 
 def create_model():
+    input_tensor = Input(shape=(h, w, ch))
     if FLAGS.network == 'vgg':
-        input_tensor = Input(shape=(224, 224, 3))
         model = VGG16(input_tensor=input_tensor, include_top=False)
+        x = model.output
+        x = GlobalAveragePooling2D()(x)
+        model = Model(model.input, x)
     elif FLAGS.network == 'inception':
-        input_tensor = Input(shape=(299, 299, 3))
         model = InceptionV3(input_tensor=input_tensor, include_top=False)
         x = model.output
         x = AveragePooling2D((8, 8), strides=(8, 8))(x)
         model = Model(model.input, x)
     else:
-        input_tensor = Input(shape=(224, 224, 3))
         model = ResNet50(input_tensor=input_tensor, include_top=False)
-
     return model
 
 def main(_):
@@ -74,28 +79,28 @@ def main(_):
     train_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_train')
     validation_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_validation')
 
+    print("Resizing to", (w, h, ch))
     print("Saving to ...")
     print(train_output_file)
     print(validation_output_file)
 
-    K.set_learning_phase(1)
+    with tf.Session() as sess:
+        K.set_session(sess)
+        K.set_learning_phase(1)
 
-    model = create_model()
-    size = (224, 224)
-    if FLAGS.network == 'inception':
-        size = (299, 299)
+        model = create_model()
 
-    print('Bottleneck training')
-    train_gen = gen(X_train, y_train, batch_size, size)
-    bottleneck_features_train = model.predict_generator(train_gen(), X_train.shape[0])
-    data = {'features': bottleneck_features_train, 'labels': y_train}
-    pickle.dump(data, open(train_output_file, 'wb'))
+        print('Bottleneck training')
+        train_gen = gen(sess, X_train, y_train, batch_size)
+        bottleneck_features_train = model.predict_generator(train_gen(), X_train.shape[0])
+        data = {'features': bottleneck_features_train, 'labels': y_train}
+        pickle.dump(data, open(train_output_file, 'wb'))
 
-    # print('Bottleneck validation')
-    # val_gen = gen(X_val, y_val, batch_size, size)
-    # bottleneck_features_validation = model.predict_generator(val_gen(), X_val.shape[0])
-    # data = {'features': bottleneck_features_validation, 'labels': y_val}
-    # pickle.dump(data, open(validation_output_file, 'wb'))
+        print('Bottleneck validation')
+        val_gen = gen(sess, X_val, y_val, batch_size)
+        bottleneck_features_validation = model.predict_generator(val_gen(), X_val.shape[0])
+        data = {'features': bottleneck_features_validation, 'labels': y_val}
+        pickle.dump(data, open(validation_output_file, 'wb'))
 
 if __name__ == '__main__':
     tf.app.run()

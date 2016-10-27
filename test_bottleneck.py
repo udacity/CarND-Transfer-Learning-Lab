@@ -12,7 +12,7 @@ flags.DEFINE_integer('batch_size', 256, 'The batch size for the generator')
 
 batch_size = FLAGS.batch_size
 nb_epoch = 50
-nb_classes = 43
+nb_classes = 43 # NOTE: change this!
 
 train_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_train')
 validation_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_validation')
@@ -26,8 +26,6 @@ X_train, y_train = train_data['features'], train_data['labels']
 X_val, y_val = validation_data['features'], validation_data['labels']
 
 print('Feature shape', X_train.shape[1:])
-
-# model.add(Flatten(input_shape=X_train.shape[1:]))
 
 inp = Input(shape=X_train.shape[1:])
 x = Flatten()(inp)

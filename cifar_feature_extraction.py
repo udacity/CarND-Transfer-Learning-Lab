@@ -53,7 +53,6 @@ with tf.Session() as sess:
             while True:
                 X_batch_old, y_batch = data[start:end], labels[start:end]
                 X_batch = sess.run(resize_op, {img_placeholder: data[start:end]})
-                # X_batch = X_batch.astype('float32') / 255
                 X_batch = preprocess_input(X_batch)
                 start += batch_size
                 end += batch_size

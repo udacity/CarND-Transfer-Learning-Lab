@@ -24,14 +24,14 @@ with tf.Session() as sess:
     K.set_session(sess)
 
     input_tensor = Input(shape=(h, w, ch))
-    base_model = ResNet50(input_tensor=input_tensor, include_top=False)
+    # base_model = ResNet50(input_tensor=input_tensor, include_top=False)
     # base_model = InceptionV3(input_tensor=input_tensor, include_top=False)
-    # base_model = VGG16(input_tensor=input_tensor, include_top=False)
+    base_model = VGG16(input_tensor=input_tensor, include_top=False)
 
     x = base_model.output
     # x = AveragePooling2D((8,8), strides=(8,8))(x)
+    x = AveragePooling2D((7,7))(x)
     x = Flatten()(x)
-    # x = GlobalAveragePooling2D()(x)
     x = Dense(512, activation='relu')(x)
     x = Dense(nb_classes, activation='softmax')(x)
     model = Model(base_model.input, x)

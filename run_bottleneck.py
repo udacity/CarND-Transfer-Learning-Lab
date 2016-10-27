@@ -1,7 +1,7 @@
 from keras.applications.resnet50 import ResNet50, preprocess_input
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import VGG16
-from keras.layers import Dense, Flatten, Input, AveragePooling2D, GlobalAveragePooling2D
+from keras.layers import Dense, Flatten, Input, AveragePooling2D
 from sklearn.model_selection import train_test_split
 from keras.models import Model
 from keras.datasets import cifar10
@@ -34,9 +34,9 @@ def gen(session, data, labels, batch_size):
         start = 0
         end = start + batch_size
         n = data.shape[0]
+
         while True:
             X_batch = session.run(resize_op, {img_placeholder: data[start:end]})
-            # X_batch = X_batch.astype('float32') / 255
             X_batch = preprocess_input(X_batch)
             y_batch = data[start:end]
             start += batch_size
@@ -45,6 +45,7 @@ def gen(session, data, labels, batch_size):
                 start = 0
                 end = batch_size
 
+            print(start, end)
             yield (X_batch, y_batch)
 
     return _f
@@ -55,7 +56,7 @@ def create_model():
     if FLAGS.network == 'vgg':
         model = VGG16(input_tensor=input_tensor, include_top=False)
         x = model.output
-        x = GlobalAveragePooling2D()(x)
+        x = AveragePooling2D((7,7))(x)
         model = Model(model.input, x)
     elif FLAGS.network == 'inception':
         model = InceptionV3(input_tensor=input_tensor, include_top=False)

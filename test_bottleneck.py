@@ -6,15 +6,20 @@ import pickle
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
+flags.DEFINE_string('dataset', 'cifar10', "Make bottleneck features this for dataset, one of 'cifar10', or 'traffic'")
+flags.DEFINE_string('network', 'resnet', "The model to bottleneck, one of 'vgg', 'inception', or 'resnet'")
+flags.DEFINE_integer('batch_size', 256, 'The batch size for the generator')
+
+batch_size = FLAGS.batch_size
 nb_epoch = 50
-batch_size = 256
-nb_classes = 10
+nb_classes = 43
 
-# flags.DEFINE_string('feature_file', '', '')
+train_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_train')
+validation_output_file = "{}_{}_{}.p".format(FLAGS.network, FLAGS.dataset, 'bottleneck_features_validation')
 
-with open('inception_cifar10_bottleneck_features_train.p', 'rb') as f:
+with open(train_output_file, 'rb') as f:
     train_data = pickle.load(f)
-with open('inception_cifar10_bottleneck_features_validation.p', 'rb') as f:
+with open(validation_output_file, 'rb') as f:
     validation_data = pickle.load(f)
 
 X_train, y_train = train_data['features'], train_data['labels']

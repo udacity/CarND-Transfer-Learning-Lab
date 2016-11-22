@@ -6,26 +6,22 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # command line flags
-flags.DEFINE_string('dataset', '', "Use the bottleneck features from this dataset, one of 'cifar10', or 'traffic'")
-flags.DEFINE_string('network', '', "Use the bottleneck features from this network, one of 'vgg', 'inception', or 'resnet'")
+flags.DEFINE_string('training_file', '', "Bottleneck features training file (.p)")
+flags.DEFINE_string('validation_file', '', "Bottleneck features validation file (.p)")
 
 
-def load_bottleneck_data(network, dataset):
+def load_bottleneck_data(training_file, validation_file):
     """
-    Utility function to load bottleneck features. Assumes bottleneck
-    feature files are in the same directory.
+    Utility function to load bottleneck features.
 
     Arguments:
-        network - String, one of 'resnet', 'vgg', 'inception'
-        dataset - String, one of 'cifar10', 'traffic'
+        training_file - String
+        validation_file - String
     """
-    train_file = 'bottlenecks/{}_{}_bottleneck_features_train.p'.format(network, dataset)
-    validation_file = 'bottlenecks/{}_{}_bottleneck_features_validation.p'.format(network, dataset)
-
-    print("Training file", train_file)
+    print("Training file", training_file)
     print("Validation file", validation_file)
 
-    with open(train_file, 'rb') as f:
+    with open(training_file, 'rb') as f:
         train_data = pickle.load(f)
     with open(validation_file, 'rb') as f:
         validation_data = pickle.load(f)
@@ -37,9 +33,10 @@ def load_bottleneck_data(network, dataset):
 
     return X_train, y_train, X_val, y_val
 
+
 def main(_):
     # load bottleneck data
-    X_train, y_train, X_val, y_val = load_bottleneck_data(FLAGS.network, FLAGS.dataset)
+    X_train, y_train, X_val, y_val = load_bottleneck_data(FLAGS.training_file, FLAGS.validation_file)
 
     print(X_train.shape, y_train.shape)
     print(X_val.shape, y_val.shape)
@@ -49,7 +46,6 @@ def main(_):
     # the dataset
     # 10 for cifar10
     # 43 for traffic
-
 
     # TODO: train your model here
 

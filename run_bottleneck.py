@@ -1,12 +1,10 @@
 from keras.applications.resnet50 import ResNet50, preprocess_input
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import VGG16
-from keras.layers import Dense, Flatten, Input, AveragePooling2D
+from keras.layers import Input, AveragePooling2D
 from sklearn.model_selection import train_test_split
 from keras.models import Model
 from keras.datasets import cifar10
-from skimage.transform import resize
-import numpy as np
 import pickle
 import tensorflow as tf
 import keras.backend as K
@@ -28,6 +26,7 @@ if FLAGS.network == 'inception':
 
 img_placeholder = tf.placeholder("uint8", (None, 32, 32, 3))
 resize_op = tf.image.resize_images(img_placeholder, (h, w), method=0)
+
 
 def gen(session, data, labels, batch_size):
     def _f():
@@ -56,7 +55,7 @@ def create_model():
     if FLAGS.network == 'vgg':
         model = VGG16(input_tensor=input_tensor, include_top=False)
         x = model.output
-        x = AveragePooling2D((7,7))(x)
+        x = AveragePooling2D((7, 7))(x)
         model = Model(model.input, x)
     elif FLAGS.network == 'inception':
         model = InceptionV3(input_tensor=input_tensor, include_top=False)
@@ -66,6 +65,7 @@ def create_model():
     else:
         model = ResNet50(input_tensor=input_tensor, include_top=False)
     return model
+
 
 def main(_):
 

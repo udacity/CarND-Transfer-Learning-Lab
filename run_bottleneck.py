@@ -37,7 +37,7 @@ def gen(session, data, labels, batch_size):
         while True:
             X_batch = session.run(resize_op, {img_placeholder: data[start:end]})
             X_batch = preprocess_input(X_batch)
-            y_batch = data[start:end]
+            y_batch = labels[start:end]
             start += batch_size
             end += batch_size
             if start >= n:
